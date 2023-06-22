@@ -76,7 +76,7 @@ def cart(request):
         cartitems = cart.cartitem_set.all()
     else:
         cartitems = []
-        cart = {"get_cart_total": 0, "get_itemtotal": 0}
+        cart = {"get_cart_total": 0, "get_total": 0}
 
     return render(request, 'cart.html', {'cartitems': cartitems,
     'cart': cart})
@@ -86,9 +86,9 @@ def update_cart(request):
     product_id = data['product_id']
     action = data['action']
     if request.user.is_authenticated:
-        client = request.user
+        client = request.user.client
         product = Product.objects.get(product_id= product_id)
-        cart, created = Cart.objects.get_or_create(owner=customer, completed=False)
+        cart, created = Cart.objects.get_or_create(client=client, completed=False)
         cartitems, created = Cartitem.objects.get_or_create(product=product, cart=cart)
 
         if action == 'add':
@@ -106,9 +106,9 @@ def update_quantity(request):
     inputval = int(data['in_val'])
     product_id = data['p_id']
     if request.user.is_authenticated:
-        customer = request.user
+        client = request.user.client
         product = Product.objects.get(product_id= product_id)
-        cart, created = Cart.objects.get_or_create(owner=customer, completed=False)
+        cart, created = Cart.objects.get_or_create(client=client, completed=False)
         cartitems, created = Cartitem.objects.get_or_create(product=product, cart=cart)
 
         cartitems.quantity = inputval
@@ -131,8 +131,8 @@ def checkout(request):
 def payment(request):
     data = json.loads(request.body)
     if request.user.is_authenticated:
-        customer = request.user
-        cart, created = Cart.objects.get_or_create(owner=customer, completed=False)
+        client = request.user.client
+        cart, created = Cart.objects.get_or_create(client=client, completed=False)
         total = float(data['cart_total'])
         
         if total == cart.get_cart_total:
