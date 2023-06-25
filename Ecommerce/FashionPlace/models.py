@@ -25,8 +25,8 @@ class Category(models.Model):
 class Product(models.Model):
     name =  models.CharField(max_length=100)
     price = models.FloatField(default=10.55)
-    digital = models.BooleanField(default=False,null=True, blank=True)
     image = models.ImageField()
+    product_id = models.UUIDField(default=uuid.uuid4, primary_key=True, unique=True, editable=False)
     category = models.ManyToManyField(Category, related_name='products')
     new_arrivals = models.BooleanField(default=False)
     top_rated= models.BooleanField(default=False)
@@ -47,6 +47,7 @@ class Cart(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     cart_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     completed = models.BooleanField(default=False)
+    session_id = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return str(self.id)
@@ -60,7 +61,7 @@ class Cart(models.Model):
     @property
     def get_cart_item(self):
         cartitems = self.cartitem_set.all()
-        total = sum([item.quantity for item in cartitems])
+        total = sum(item.quantity for item in cartitems)
         return total
 
 

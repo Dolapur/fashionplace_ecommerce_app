@@ -6,7 +6,7 @@
     <table class="table table-light table-hover">
         <thead>
           <tr>
-            <th scope="col"> <a style="float:left; margin:5px;" class="btn btn-primary btn-lg" href="{% url 'products' %}">Continue Shopping →</a></th>
+            <th scope="col"> <a style="float:left; margin:5px;" class="btn btn-primary btn-lg" href="{% url 'products' %}">&#x2190; Continue Shopping</a></th>
             <th scope="col"></th>
             <th scope="col"></th>
             <th scope="col"></th>
@@ -46,7 +46,7 @@
         <th scope="row"><div id = "cart_image"><img src = {{item.product.image.url}}></div></th>
         <td><h3>{{item.product.name}}</h3></td>
         <td><h3>{{item.product.price}}</h3></td>
-        <td><input type = 'number' class = 'quantity' value = "{{item.quantity}}" style = 'width: 50px; padding-left: 5px'></td>
+        <td><input type = 'number'data-product="{{item.product.product_id}}" class = 'quantity' value = "{{item.quantity}}" style = 'width: 50px; padding-left: 5px'></td>
         <td><h3>{{item.get_total | floatformat:2}}</h3></td>
       </tr>
       {% endfor %}

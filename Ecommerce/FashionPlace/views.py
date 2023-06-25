@@ -81,15 +81,17 @@ def cart(request):
     return render(request, 'cart.html', {'cartitems': cartitems,
     'cart': cart})
 
-def update_cart(request):
+def updatecart(request):
     data = json.loads(request.body)
     product_id = data['product_id']
     action = data['action']
+    product = Product.objects.get(product_id=product_id)
+    
     if request.user.is_authenticated:
         client = request.user.client
-        product = Product.objects.get(product_id= product_id)
+        product = Product.objects.get(product_id=product_id)
         cart, created = Cart.objects.get_or_create(client=client, completed=False)
-        cartitems, created = Cartitem.objects.get_or_create(product=product, cart=cart)
+        cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
 
         if action == 'add':
             cartitems.quantity += 1
@@ -101,7 +103,7 @@ def update_cart(request):
 
     return JsonResponse(msg, safe=False)
 
-def update_quantity(request):
+def updatequantity(request):
     data = json.loads(request.body)
     inputval = int(data['in_val'])
     product_id = data['p_id']
@@ -109,7 +111,7 @@ def update_quantity(request):
         client = request.user.client
         product = Product.objects.get(product_id= product_id)
         cart, created = Cart.objects.get_or_create(client=client, completed=False)
-        cartitems, created = Cartitem.objects.get_or_create(product=product, cart=cart)
+        cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
 
         cartitems.quantity = inputval
         cartitems.save()
