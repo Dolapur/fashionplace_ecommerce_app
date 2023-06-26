@@ -1,9 +1,14 @@
+import time
+import json
+import uuid
+from .models import *
 from django.shortcuts import render
 from django.contrib.sessions.models import Session
 from django.http import JsonResponse
-from .models import *
-import json
-import uuid
+from  .forms import CreateUserForm
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
@@ -122,9 +127,48 @@ def updatequantity(request):
     return JsonResponse(msg, safe=False)
 
 
+def register(request):
+    if request.user.is_authenticated:
+        return redirect('checkout')
 
+    if request.method == 'POST':
+        register_form = CreateUserForm(request.POST)
+        if register_form.is_valid():
+            user = register_form.save()
+            messages.info(request, "Account Created Successfully!")
+            login(request, user)
+            return redirect('checkout')
+        else:
+            messages.error(request, "Registration Failed")
+            time.sleep(3)
+    else:
+        register_form = CreateUserForm()
+
+    return render(request, 'register.html', {'register_form': register_form})
+
+
+def login(request):
+    if request.user.is_authenticated:
+        return redirect('checkout')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('checkout')
+        else:
+            messages.error(request, "Invalid Credentials")
+            time.sleep(3)
+
+    return render(request, 'login.html')
+
+
+@login_required(login_url='login')
 def checkout(request):
     return render(request, 'checkout.html')
+
 
 def payment(request):
     data = json.loads(request.body)
@@ -135,8 +179,12 @@ def payment(request):
         
         if total == cart.get_cart_total:
             cart.completed = True
-            cart.save()
-        
-        
+            cart.save()    
         
     return JsonResponse('It is working', safe=False)
+
+
+
+def logout(request):
+    logout(request)
+    return redirect('home')

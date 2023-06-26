@@ -69,3 +69,4 @@ function updateQuantity(e) {
       console.error('Error:', error);
     });
 }
+
