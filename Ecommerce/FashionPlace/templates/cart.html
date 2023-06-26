@@ -15,7 +15,7 @@
         <tbody>
          
           <tr>
-            <th scope="row"><h3><strong>Items: {{cart.get_cart_item}}</strong></h3></th>
+            <th scope="row"><h3><strong>Items: {{cart.get_cart_item |floatformat:2}}</strong></h3></th>
             <td></td>
             <td><h3><strong>Total: ${{cart.get_cart_total|floatformat:2}}</strong></h3></td>
             <!-- <td></td> -->
@@ -40,18 +40,18 @@
       </tr>
     </thead>
     <tbody>
-
       {% for item in cartitems %}
       <tr>
-        <th scope="row"><div id = "cart_image"><img src = {{item.product.image.url}}></div></th>
-        <td><h3>{{item.product.name}}</h3></td>
-        <td><h3>{{item.product.price}}</h3></td>
-        <td><input type = 'number'data-product="{{item.product.product_id}}" class = 'quantity' value = "{{item.quantity}}" style = 'width: 50px; padding-left: 5px'></td>
-        <td><h3>{{item.get_total | floatformat:2}}</h3></td>
+        <th scope="row"><div id="cart_image"><img src="{{ item.product.image.url }}"></div></th>
+        <td><h3>{{ item.product.name }}</h3></td>
+        <td><h3>{{ item.product.price }}</h3></td>
+        <td>
+          <input type="number" data-product="{{ item.product.product_id }}" class="quantity" value="{{ item.quantity }}"
+            style="width: 50px; padding-left: 5px" min="0">
+        </td>
+        <td><h3>{{ item.get_total | floatformat:2 }}</h3></td>
       </tr>
       {% endfor %}
-      
-      
     </tbody>
   </table>
 </div>

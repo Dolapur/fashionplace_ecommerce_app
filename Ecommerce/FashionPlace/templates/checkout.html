@@ -112,7 +112,7 @@
                         <td><h3>x{{item.quantity}}</h3></td>
                         <td><h3>${{item.product.price}}</h3></td>
                         <td><h3></h3></td>
-                        <td><h3>${{item.get_total}}</h3></td>
+                        <td><h3>${{item.get_total |floatformat:2}}</h3></td>
                       </tr>
                      {% endfor %}
                       
