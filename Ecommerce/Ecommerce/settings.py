@@ -65,7 +65,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'FashionPlace.context_processors.category_links',
-                'FashionPlace.context_processors.cart_renderer'
+                'FashionPlace.context_processors.cart_render',
             ],
         },
     },

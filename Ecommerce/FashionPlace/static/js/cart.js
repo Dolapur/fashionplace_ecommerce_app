@@ -64,6 +64,7 @@ function updateQuantity(e) {
       e.target.parentElement.parentElement.children[4].innerHTML = `<h3>$${data.subtotal.toFixed(2)}</h3>`;
       document.getElementById('total').innerHTML = `<h3><strong>$${data.grandtotal.toFixed(2)}</strong></h3>`;
       document.getElementById('cart').innerHTML = data.quantity; // Update cart quantity
+      location.reload(); // Reload the page immediately
     })
     .catch((error) => {
       console.error('Error:', error);

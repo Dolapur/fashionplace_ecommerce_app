@@ -2,7 +2,7 @@ import time
 import json
 import uuid
 from .models import *
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.sessions.models import Session
 from django.http import JsonResponse
 from  .forms import CreateUserForm
@@ -127,40 +127,32 @@ def updatequantity(request):
     return JsonResponse(msg, safe=False)
 
 
-def register(request):
-    if request.user.is_authenticated:
-        return redirect('checkout')
-
+def register_page(request):
     if request.method == 'POST':
         register_form = CreateUserForm(request.POST)
         if register_form.is_valid():
             user = register_form.save()
             messages.info(request, "Account Created Successfully!")
             login(request, user)
-            return redirect('checkout')
+            return redirect('login')
         else:
             messages.error(request, "Registration Failed")
-            time.sleep(3)
     else:
         register_form = CreateUserForm()
 
     return render(request, 'register.html', {'register_form': register_form})
 
 
-def login(request):
-    if request.user.is_authenticated:
-        return redirect('checkout')
-
+def login_page(request):
     if request.method == 'POST':
         username = request.POST.get('username')
-        password = request.POST.get('password')
+        password = request.POST.get('password1')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             return redirect('checkout')
         else:
-            messages.error(request, "Invalid Credentials")
-            time.sleep(3)
+            messages.info(request, "Invalid Credentials")
 
     return render(request, 'login.html')
 
@@ -185,6 +177,6 @@ def payment(request):
 
 
 
-def logout(request):
+def logout_page(request):
     logout(request)
     return redirect('home')
