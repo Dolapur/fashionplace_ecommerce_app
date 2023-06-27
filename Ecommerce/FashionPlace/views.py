@@ -9,6 +9,7 @@ from  .forms import CreateUserForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 
 # Create your views here.
@@ -159,22 +160,60 @@ def login_page(request):
 
 @login_required(login_url='login')
 def checkout(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        address = request.POST.get('address')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        zipcode = request.POST.get('zipcode')
+
+        client = request.user.client
+        cart = client.cart
+
+        shipping_address = ShippingAddress.objects.create(
+            client=client,
+            cart=cart,
+            address=address,
+            city=city,
+            state=state,
+            zipcode=zipcode
+        )
+
+        return redirect('payment', shipping_address_id=shipping_address.id)
+
     return render(request, 'checkout.html')
 
 
-def payment(request):
-    data = json.loads(request.body)
-    if request.user.is_authenticated:
-        client = request.user.client
-        cart, created = Cart.objects.get_or_create(client=client, completed=False)
-        total = float(data['cart_total'])
-        
-        if total == cart.get_cart_total:
-            cart.completed = True
-            cart.save()    
-        
-    return JsonResponse('It is working', safe=False)
+def payments(request, shipping_address_id):
+    if request.method == "POST":
+        amount = request.POST['amount']
+        email = request.POST['email']
 
+        # Perform payment logic
+
+        # Assuming you have the ShippingAddress object associated with the ID
+        shipping_address = ShippingAddress.objects.get(id=shipping_address_id)
+
+        # Assuming you have the Client object associated with the shipping address
+        client = shipping_address.client
+
+        # Assuming you have the Cart object associated with the client
+        cart = client.cart
+
+        payment = Payment.objects.create(amount=amount, client=client)
+        payment.save()
+
+        # Perform other payment-related operations
+
+        context = {
+            'payment': payment,
+            'field_values': request.POST,
+            # Include other necessary context data
+        }
+        return render(request, 'success.html', context)
+
+    return render(request, 'payment.html')
 
 
 def logout_page(request):

@@ -8,7 +8,8 @@
       <div class="col-md-6">
         <div class="uk-width-xlarge uk-margin">
             <div class="uk-card uk-card-small uk-card-default uk-card-body">
-                <form class="row g-3" id="shipping-form">
+                <form class="row g-3" id="shipping-form" method="POST" action="{% url 'payments' %}">
+                    {% csrf_token %}
                     <div id="shippingInfo">
                         <h3>Shipping Information</h3>
                         <div class="row" id="identity">
@@ -44,7 +45,7 @@
                     </div>
                     <div class="col-12">
                         <div class="d-grid gap-2">
-                            <a style="float: right; margin: 5px;" class="btn btn-success" href="{% url 'payment' %}">Payment</a>
+                            <button type="submit" class="btn btn-success" style="float: right; margin: 5px;">Payment</button>
                         </div>
                     </div>
                 </form>
@@ -105,6 +106,7 @@
 
     </div>
 </div>
+
 
 
 {% endblock %}
