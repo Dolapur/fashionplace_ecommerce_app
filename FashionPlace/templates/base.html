@@ -12,27 +12,6 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <link rel="stylesheet" href="{% static 'css/cart.css' %}">
   <link rel="stylesheet" href="{% static 'css/register.css' %}">
-  <script>
-    let user = "{{request.user}}"
-
-      function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-      }
-      const csrftoken = getCookie('csrftoken');
-
-  </script>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -56,15 +35,15 @@
                Hello, {{user}}
              </button>
              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-               <li><a class="dropdown-item" href="{% url 'logout' %}"> Logout</a></li>
+               <li><a class="dropdown-item" style="padding-bottom: 10px;" href="{% url 'logout' %}"> Logout</a></li>
              </ul>
            </div> 
           
           {% else %}
             <a class="nav-link" href="{% url 'register' %}">
-              <button type="button" class="btn btn-outline-primary">Sign Up</button></a>
+              <button type="button" class="btn btn-outline-primary" style="padding-bottom: 6px;">SignUp</button></a>
               <a class="nav-link" href="{% url 'login' %}">
-                <button type="button" class="btn btn-outline-success">Login</button>
+                <button type="button" class="btn btn-outline-success" style="padding-bottom: 6px;">Login</button>
               </a>
               
         {% endif %}
