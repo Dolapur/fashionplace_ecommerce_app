@@ -5,6 +5,10 @@ from django.contrib.auth.models import User
 
 
 class CreateUserForm(UserCreationForm):
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+        'class': 'form-control', 'placeholder': 'Enter Full Name'
+    }))
+
     username = forms.CharField(max_length = 100, widget = forms.TextInput(attrs={
         'class' : 'form-control', 'placeholder': 'Enter Username'
     }))
@@ -21,6 +25,5 @@ class CreateUserForm(UserCreationForm):
     }))
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
-
+        fields = ['name', 'username', 'email', 'password1', 'password2']
 

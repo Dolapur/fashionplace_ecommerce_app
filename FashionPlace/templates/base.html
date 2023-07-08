@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <link rel="stylesheet" href="{% static 'css/cart.css' %}">
   <link rel="stylesheet" href="{% static 'css/register.css' %}">
+  <script>
+    let user = "{{ request.user }}";
+  </script>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">

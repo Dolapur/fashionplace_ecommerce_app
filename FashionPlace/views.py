@@ -1,4 +1,3 @@
-import time
 import json
 import uuid
 from .models import *
@@ -12,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
 
+
 # Create your views here.
 def home(request):
     new_arrivals = Product.objects.filter(new_arrivals=True)
@@ -21,7 +21,7 @@ def home(request):
     return render(request, 'home.html', {
         'new_arrivals': new_arrivals,
         'top_rated': top_rated,
-        'trending': trending
+        'trending': trending,
     })
 
 
@@ -59,9 +59,11 @@ def updatecart(request):
     product = Product.objects.get(product_id=product_id)
     
     if request.user.is_authenticated:
-        client = request.user.client
-        product = Product.objects.get(product_id=product_id)
-        cart, created = Cart.objects.get_or_create(client=client, completed=False)
+        cart_queryset = Cart.objects.filter(customer=request.user.customer, completed=False)
+        if cart_queryset.exists():
+            cart = cart_queryset.first()
+        else:
+            cart = Cart.objects.create(customer=request.user.customer, completed=False)
         cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
 
         if action == 'add':
@@ -73,8 +75,7 @@ def updatecart(request):
         }
     else:
         session_id = request.session.get('session_id')
-        product = Product.objects.get(product_id=product_id)
-        cart,created = Cart.objects.get_or_create(session_id=session_id, completed=False)
+        cart, created = Cart.objects.create(session_id=session_id, completed=False)
         cartitems, created =CartItem.objects.get_or_create(cart=cart, product=product)
         if action == 'add':
             cartitems.quantity += 1
@@ -91,15 +92,14 @@ def updatequantity(request):
     data = json.loads(request.body)
     inputval = int(data['in_val'])
     product_id = data['p_id']
-    
-    if inputval < 0:
-        # Set inputval to 0 if it's less than zero
-        inputval = 0
+    product = Product.objects.get(product_id=product_id)
 
     if request.user.is_authenticated:
-        client = request.user.client
-        product = Product.objects.get(product_id=product_id)
-        cart, created = Cart.objects.get_or_create(client=client, completed=False)
+        cart_queryset = Cart.objects.filter(customer=request.user.customer, completed=False)
+        if cart_queryset.exists():
+            cart = cart_queryset.first()
+        else:
+            cart = Cart.objects.create(customer=request.user.customer, completed=False)
         cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
 
         cartitems.quantity = inputval
@@ -112,7 +112,6 @@ def updatequantity(request):
         }
     else:
         session_id = request.session.get('session_id')
-        product = Product.objects.get(product_id=product_id)
         cart, created = Cart.objects.get_or_create(session_id=session_id, completed=False)
         cartitems, created = CartItem.objects.get_or_create(cart=cart, product=product)
 
@@ -132,7 +131,13 @@ def register_page(request):
     if request.method == 'POST':
         register_form = CreateUserForm(request.POST)
         if register_form.is_valid():
-            user = register_form.save()
+            user = register_form.save(commit=False)
+            user.save()
+            session_id = request.session.session_key
+            name = register_form.cleaned_data.get('name')
+            customer = Customer.objects.create(user=user, name=name)
+            customer.session_id = session_id
+            customer.save()
             messages.info(request, "Account Created Successfully!")
             login(request, user)
             return redirect('login')

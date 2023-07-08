@@ -5,10 +5,10 @@ from django.db.models.lookups import IntegerFieldFloatRounding
 
 
 # Create your models here.
-class Client(models.Model):
+class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    email = models.EmailField()
+    
 
     def __str__(self):
         return self.name
@@ -36,18 +36,11 @@ class Product(models.Model):
         return self.name
 
 
-class ProductSearch(models.Model):
-    product_name = models.CharField(max_length=100)
-    
-    def __str__(self):
-        return self.product_name
-
-
 class Cart(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     cart_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     completed = models.BooleanField(default=False)
-    session_id = models.CharField(max_length=100, null=True, blank=True)
+    session_id = models.UUIDField(default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return str(self.id)

@@ -1,6 +1,5 @@
-let user = "{{request.user}}"
 
-      function getCookie(name) {
+ function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
@@ -25,13 +24,14 @@ for (let i = 0; i < btns.length; i++) {
     let product_id = e.target.dataset.product;
     let action = e.target.dataset.action;
     console.log(product_id);
-    if (user == 'AnonymousUser') {
-      console.log('Signed in');
+    if (user === 'AnonymousUser') {
+      console.log('AnonymousUser');
       updateCart(product_id, action);
       location.reload();
     } else {
       updateCart(product_id, action);
       location.reload();
+      
     }
   });
 }
@@ -84,10 +84,9 @@ function updateQuantity(e) {
       e.target.parentElement.parentElement.children[4].innerHTML = `<h3>$${data.subtotal.toFixed(2)}</h3>`;
       document.getElementById('total').innerHTML = `<h3><strong>$${data.grandtotal.toFixed(2)}</strong></h3>`;
       document.getElementById('cart').innerHTML = data.quantity; // Update cart quantity
-      location.reload(); // Reload the page immediately
+      location.reload();  // Reload the page immediately
     })
     .catch((error) => {
       console.error('Error:', error);
     });
 }
-

@@ -13,6 +13,10 @@
     <form action = '#' method = 'POST'>
       {% csrf_token %}
       <div id = 'form-control'>
+        <label>Name:</label>
+        {{register_form.name}}
+      </div>
+      <div id = 'form-control'>
           <label>Username:</label>
           {{register_form.username}}
         </div>
