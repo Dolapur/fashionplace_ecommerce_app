@@ -19,7 +19,7 @@ FashionPlace is an e-commerce website built with Django, where users can browse 
 
 # Installation
 * Clone the repository:
-   git clone https://github.com/dolapur/fashionplace_ecommerce.git
+   git clone https://github.com/Dolapur/fashionplace_ecommerce_app.git
 
 * Navigate to the project directory:
    
