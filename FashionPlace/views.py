@@ -50,7 +50,12 @@ def search_product(request):
 
 
 def cart(request):
-    return render(request, 'cart.html')
+    cart = Cart.objects.get(session_id = request.session['nonuser'], completed=False)
+    cartitems = cart.cartitems_set.all()
+    return render(request, 'cart.html', {
+        'cart':cart, 
+        'cartitems': cartitems
+    })
 
 def updatecart(request):
     data = json.loads(request.body)
@@ -74,9 +79,12 @@ def updatecart(request):
             'quantity': cart.get_cart_item
         }
     else:
-        session_id = request.session.get('session_id')
-        cart, created = Cart.objects.create(session_id=session_id, completed=False)
-        cartitems, created =CartItem.objects.get_or_create(cart=cart, product=product)
+        session_id = str(uuid.uuid4())
+        request.session['nonuser'] = session_id
+        request.session.save()
+
+        cart = Cart.objects.create(session_id=request.session['nonuser'], completed=False)
+        cartitems, created = CartItem.objects.get_or_create(cart=cart, product=product)
         if action == 'add':
             cartitems.quantity += 1
         cartitems.save()
@@ -90,16 +98,12 @@ def updatecart(request):
 
 def updatequantity(request):
     data = json.loads(request.body)
-    inputval = int(data['in_val'])
+    quantity = int(data['in_val'])
     product_id = data['p_id']
     product = Product.objects.get(product_id=product_id)
 
     if request.user.is_authenticated:
-        cart_queryset = Cart.objects.filter(customer=request.user.customer, completed=False)
-        if cart_queryset.exists():
-            cart = cart_queryset.first()
-        else:
-            cart = Cart.objects.create(customer=request.user.customer, completed=False)
+        cart, created = Cart.objects.get_or_create(customer=request.user.customer, completed=False)
         cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
 
         cartitems.quantity = inputval
@@ -111,13 +115,17 @@ def updatequantity(request):
             'quantity': cart.get_cart_item
         }
     else:
-        session_id = request.session.get('session_id')
-        cart, created = Cart.objects.get_or_create(session_id=session_id, completed=False)
-        cartitems, created = CartItem.objects.get_or_create(cart=cart, product=product)
-
-        cartitems.quantity = inputval
+        session_id = str(uuid.uuid4())
+        request.session['nonuser'] = session_id
+        request.session.save()
+        
+        cart = Cart.objects.get(session_id = request.session['nonuser'], completed=False)
+        cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
+        cartitems.quantity = quantity
+        if int(cartitems.quantity) == 0:
+            cartitems.delete()
         cartitems.save()
-
+        
         msg = {
             'subtotal': cartitems.get_total,
             'grandtotal': cart.get_cart_total,
@@ -133,11 +141,16 @@ def register_page(request):
         if register_form.is_valid():
             user = register_form.save(commit=False)
             user.save()
-            session_id = request.session.session_key
+
+            session_id = str(uuid.uuid4())
+            request.session['nonuser'] = session_id
+            request.session.save()
+
             name = register_form.cleaned_data.get('name')
             customer = Customer.objects.create(user=user, name=name)
             customer.session_id = session_id
             customer.save()
+            
             messages.info(request, "Account Created Successfully!")
             login(request, user)
             return redirect('login')

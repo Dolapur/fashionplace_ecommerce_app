@@ -8,7 +8,6 @@ from django.db.models.lookups import IntegerFieldFloatRounding
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    
 
     def __str__(self):
         return self.name
@@ -37,10 +36,10 @@ class Product(models.Model):
 
 
 class Cart(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null = True, blank=True)
     cart_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     completed = models.BooleanField(default=False)
-    session_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    session_id = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return str(self.id)
