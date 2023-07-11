@@ -8,8 +8,6 @@ from  .forms import CreateUserForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
-
 
 
 # Create your views here.
@@ -52,17 +50,18 @@ def search_product(request):
 def cart(request):
     return render(request, 'cart.html', {})
 
+
 def updatecart(request):
     data = json.loads(request.body)
     product_id = data['product_id']
     action = data['action']
     product = Product.objects.get(product_id=product_id)
 
-    if request.user.is_authenticated:
+    if request.user.is_anonymous:
+        cart = Cart.objects.get(session_id=request.session['nonuser'], completed=False)
+    elif request.user.is_authenticated:
         cart_queryset = Cart.objects.filter(customer=request.user.customer, completed=False)
         cart = cart_queryset.first() if cart_queryset.exists() else Cart.objects.create(customer=request.user.customer, completed=False)
-    else:
-        cart = Cart.objects.create(session_id=request.session['nonuser'], completed=False)
 
     cartitems, created = CartItem.objects.get_or_create(cart=cart, product=product)
 
@@ -85,7 +84,7 @@ def updatequantity(request):
 
     if request.user.is_authenticated:
         cart, created = Cart.objects.get_or_create(customer=request.user.customer, completed=False)
-    else:
+    if request.user.is_anonymous:
         cart = Cart.objects.get(session_id=request.session['nonuser'], completed=False)
 
     cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
