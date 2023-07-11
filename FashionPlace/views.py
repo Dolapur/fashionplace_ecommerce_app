@@ -50,50 +50,31 @@ def search_product(request):
 
 
 def cart(request):
-    cart = Cart.objects.get(session_id = request.session['nonuser'], completed=False)
-    cartitems = cart.cartitems_set.all()
-    return render(request, 'cart.html', {
-        'cart':cart, 
-        'cartitems': cartitems
-    })
+    return render(request, 'cart.html', {})
 
 def updatecart(request):
     data = json.loads(request.body)
     product_id = data['product_id']
     action = data['action']
     product = Product.objects.get(product_id=product_id)
-    
+
     if request.user.is_authenticated:
         cart_queryset = Cart.objects.filter(customer=request.user.customer, completed=False)
-        if cart_queryset.exists():
-            cart = cart_queryset.first()
-        else:
-            cart = Cart.objects.create(customer=request.user.customer, completed=False)
-        cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
-
-        if action == 'add':
-            cartitems.quantity += 1
-        cartitems.save()
-
-        msg = {
-            'quantity': cart.get_cart_item
-        }
+        cart = cart_queryset.first() if cart_queryset.exists() else Cart.objects.create(customer=request.user.customer, completed=False)
     else:
-        session_id = str(uuid.uuid4())
-        request.session['nonuser'] = session_id
-        request.session.save()
-
         cart = Cart.objects.create(session_id=request.session['nonuser'], completed=False)
-        cartitems, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        if action == 'add':
-            cartitems.quantity += 1
-        cartitems.save()
 
-        msg = {
-            'quantity': cart.get_cart_item
-        }
-        
-    return JsonResponse(msg, safe=False)
+    cartitems, created = CartItem.objects.get_or_create(cart=cart, product=product)
+
+    if action == 'add':
+        cartitems.quantity += 1
+    cartitems.save()
+
+    msg = {
+        'quantity': cart.get_cart_item
+    }
+
+    return JsonResponse(msg)
 
 
 def updatequantity(request):
@@ -104,36 +85,24 @@ def updatequantity(request):
 
     if request.user.is_authenticated:
         cart, created = Cart.objects.get_or_create(customer=request.user.customer, completed=False)
-        cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
-
-        cartitems.quantity = inputval
-        cartitems.save()
-
-        msg = {
-            'subtotal': cartitems.get_total,
-            'grandtotal': cart.get_cart_total,
-            'quantity': cart.get_cart_item
-        }
     else:
-        session_id = str(uuid.uuid4())
-        request.session['nonuser'] = session_id
-        request.session.save()
-        
-        cart = Cart.objects.get(session_id = request.session['nonuser'], completed=False)
-        cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
-        cartitems.quantity = quantity
-        if int(cartitems.quantity) == 0:
-            cartitems.delete()
+        cart = Cart.objects.get(session_id=request.session['nonuser'], completed=False)
+
+    cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
+
+    cartitems.quantity = quantity
+    if cartitems.quantity == 0:
+        cartitems.delete()
+    else:
         cartitems.save()
-        
-        msg = {
-            'subtotal': cartitems.get_total,
-            'grandtotal': cart.get_cart_total,
-            'quantity': cart.get_cart_item
-        }
 
-    return JsonResponse(msg, safe=False)
+    msg = {
+        'subtotal': cartitems.get_total,
+        'grandtotal': cart.get_cart_total,
+        'quantity': cart.get_cart_item
+    }
 
+    return JsonResponse(msg)
 
 def register_page(request):
     if request.method == 'POST':
@@ -142,7 +111,7 @@ def register_page(request):
             user = register_form.save(commit=False)
             user.save()
 
-            session_id = str(uuid.uuid4())
+            session_id = str(uuid.uuid4())  
             request.session['nonuser'] = session_id
             request.session.save()
 
@@ -150,7 +119,7 @@ def register_page(request):
             customer = Customer.objects.create(user=user, name=name)
             customer.session_id = session_id
             customer.save()
-            
+
             messages.info(request, "Account Created Successfully!")
             login(request, user)
             return redirect('login')
