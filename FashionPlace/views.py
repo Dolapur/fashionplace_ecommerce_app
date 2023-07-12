@@ -8,6 +8,7 @@ from  .forms import CreateUserForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 
 
 # Create your views here.
@@ -63,11 +64,15 @@ def updatecart(request):
         cart_queryset = Cart.objects.filter(customer=request.user.customer, completed=False)
         cart = cart_queryset.first() if cart_queryset.exists() else Cart.objects.create(customer=request.user.customer, completed=False)
 
-    cartitems, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    cartitems = CartItem.objects.filter(cart=cart, product=product)
+    if cartitems.exists():
+        cartitems = cartitem.first()  
+        if action == 'add':
+            cartitems.quantity += 1
+            cartitems.save()
+    else:
+        cartitems = CartItem.objects.create(cart=cart, product=product, quantity=1)
 
-    if action == 'add':
-        cartitems.quantity += 1
-    cartitems.save()
 
     msg = {
         'quantity': cart.get_cart_item
@@ -87,16 +92,20 @@ def updatequantity(request):
     if request.user.is_anonymous:
         cart = Cart.objects.get(session_id=request.session['nonuser'], completed=False)
 
-    cartitems, created = CartItem.objects.get_or_create(product=product, cart=cart)
+    cartitems = CartItem.objects.filter(product=product, cart=cart)
+    if cartitems.exists():
+        cartitem = cartitems.first() 
+        cartitem.quantity = quantity
 
-    cartitems.quantity = quantity
-    if cartitems.quantity == 0:
-        cartitems.delete()
+        if cartitem.quantity == 0:
+            cartitem.delete()
+        else:
+            cartitem.save()
     else:
-        cartitems.save()
+        cartitems = CartItem.objects.create(product=product, cart=cart, quantity=quantity)
 
     msg = {
-        'subtotal': cartitems.get_total,
+        'subtotal': cartitem.get_total,
         'grandtotal': cart.get_cart_total,
         'quantity': cart.get_cart_item
     }
@@ -111,17 +120,25 @@ def register_page(request):
             user.save()
 
             session_id = str(uuid.uuid4())  
+            if 'nonuser' in request.session:
+                session_id = request.session['nonuser']
+                del request.session['nonuser']
             request.session['nonuser'] = session_id
             request.session.save()
 
             name = register_form.cleaned_data.get('name')
             customer = Customer.objects.create(user=user, name=name)
-            customer.session_id = session_id
             customer.save()
+
+            cart = Cart.objects.filter(session_id=session_id, completed=False).first()
+            if cart:
+                cart.session_id = session_id
+                cart.customer = customer
+                cart.save()
 
             messages.info(request, "Account Created Successfully!")
             login(request, user)
-            return redirect('login')
+            return redirect('checkout')
         else:
             messages.error(request, "Registration Failed")
     else:
@@ -137,6 +154,29 @@ def login_page(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+
+            if 'nonuser' in request.session:
+                nonuser_cart = Cart.objects.filter(session_id=request.session['nonuser'], completed=False).first()
+                user_cart = Cart.objects.filter(customer=request.user.customer, completed=False).first()
+
+                if nonuser_cart and user_cart:
+                    nonuser_cart_items = nonuser_cart.cartitem_set.all()
+                    for nonuser_cart_item in nonuser_cart_items:
+                        existing_cart_item = user_cart.cartitem_set.filter(product=nonuser_cart_item.product).first()
+                        if existing_cart_item:
+                            existing_cart_item.quantity += nonuser_cart_item.quantity
+                            existing_cart_item.save()
+                        else:
+                            nonuser_cart_item.cart = user_cart
+                            nonuser_cart_item.save()
+                            
+                    nonuser_cart.delete()
+                
+                user_cart.save()
+
+                del request.session['nonuser']
+                request.session.save()
+
             return redirect('checkout')
         else:
             messages.info(request, "Invalid Credentials")

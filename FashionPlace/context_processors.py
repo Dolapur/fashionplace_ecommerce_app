@@ -8,16 +8,38 @@ def category_links(request):
 
 
 def cart_render(request):
+    cart = Cart.objects.none()
+    cartitems = CartItem.objects.none()
     try:
         cart = Cart.objects.get(customer=request.user.customer, completed=False)
+        cartitems = CartItem.objects.filter(cart=cart)
     except:
         if request.user.is_anonymous:
             try:
                 cart = Cart.objects.get(session_id = request.session['nonuser'], completed=False)
+                cartitems = CartItem.objects.filter(cart=cart)
             except:
                 request.session['nonuser'] = str(uuid.uuid4())
                 cart = Cart.objects.create(session_id = request.session['nonuser'], completed=False)
-    cartitems = cart.cartitem_set.all()
+                cartitems = CartItem.objects.filter(cart=cart).first()
     return {'cart': cart, 
         'cartitems': cartitems
     }
+
+
+#  cart = {}
+#     cartitems = {}
+#     try:
+#         cart = Cart.objects.get(customer=request.user.customer, completed=False)
+#         cartitems = cart.cartitem_set.all()
+#     except:
+#         if request.user.is_anonymous:
+#             try:
+#                 request.session['nonuser'] = str(uuid.uuid4())
+#                 cart = Cart.objects.get(session_id=request.session['nonuser'], completed=False)
+#                 cartitems = cart.cartitem_set.all()
+#             except Cart.DoesNotExist:
+#                 request.session['nonuser'] = str(uuid.uuid4())
+#                 cart = Cart.objects.create(session_id=request.session['nonuser'], completed=False)
+#                 cartitems = cart.cartitem_set.all()
+#     return {'cart': cart, 'cartitems': cartitems}
