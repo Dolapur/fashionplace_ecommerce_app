@@ -1,5 +1,5 @@
 # FashionPlace
-FashionPlace is an e-commerce website built with Django, where users can browse and purchase fashion products. It provides features such as product listings, search functionality, user registration, user authentication, and a secure payment option using Flutterwave. It also leverages Django Ajax for dynamic page reloading and utilizes Django sessions to enable users to add items to their cart without requiring them to log in.
+FashionPlace is an e-commerce website built with Django, where users can browse and purchase fashion products. It provides features such as product listings, search functionality, user registration, user authentication, and a secure payment option using Stripe. It also leverages Django Ajax for dynamic page reloading and utilizes Django sessions to enable users to add items to their cart without requiring them to log in.
 
 # Features
 
@@ -15,7 +15,7 @@ FashionPlace is an e-commerce website built with Django, where users can browse 
 
 * Cart: Enable users to add products to their cart while browsing and proceed to checkout when ready to purchase.
 
-* Payment Integration: Integrate Flutterwave payment gateway to securely process payments for user purchases.
+* Payment Integration: Integrate Stripe payment gateway to securely process payments for user purchases.
 
 # Installation
 * Clone the repository:
@@ -57,9 +57,15 @@ FashionPlace is an e-commerce website built with Django, where users can browse 
 
 * During the checkout process, you will be redirected to register or login to proceed shopping. Register an account to access additional features such as making purchases and viewing order history. 
 
-* During payment, you will be redirected to the secure payment page powered by Flutterwave (e.g., credit/debit card, bank transfer, mobile wallet) to complete the payment.
+* During payment, you will be redirected to the secure payment page powered by Stripe (e.g., credit/debit card) to complete the payment.
 
 * After successful payment, you will receive a confirmation message
+
+# FashionPlace Api
+
+* API Repository:
+  
+  https://github.com/Dolapur/fashionplace_ecommerce_api.git
 
 
 # Contributing

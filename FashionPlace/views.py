@@ -1,5 +1,6 @@
 import json
 import uuid
+import stripe
 from .models import *
 from django.shortcuts import render, redirect
 from django.contrib.sessions.models import Session
@@ -9,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.conf import settings
 
 
 # Create your views here.
@@ -189,13 +191,36 @@ def checkout(request):
     return render(request, 'checkout.html')
 
 
-def payments(request, pk):
-    if request.user.is_authenticated:
-        cart = Cart.objects.get(id=pk)
-        cart.completed = True
-        cart.save()
-        messages.success(request, "Payment made successfully")
-        return redirect("home")
+def payment(request, pk):
+    publishable_key = settings.STRIPE_PUBLISHABLE_KEY
+    if request.method == 'POST':
+        cart_id = pk
+        cart = Cart.objects.get(id=cart_id)
+        token = request.POST.get('stripeToken')
+
+        cart_total = cart.get_cart_total
+
+        try:
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            charge = stripe.Charge.create(
+                amount=int(cart_total * 100),
+                currency='usd',
+                source=token,
+            )
+            if charge.status == 'succeeded':
+                cart.completed = True
+                cart.save()
+                messages.success(request, "Payment made successfully")
+                return redirect("home")
+        except stripe.error.CardError as e:
+            error = e.user_message
+            return render(request, 'checkout.html', {'error': error})
+    context = {
+        'publishable_key': publishable_key,
+    }
+    return render(request, 'checkout.html', context)
+
+    return render(request, 'checkout.html', context)
 
 
 def logout_page(request):

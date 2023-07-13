@@ -13,3 +13,13 @@
       max-width: 100%;
     }
   }
+
+
+  .stripe-button {
+    display: inline-block;
+    width: 400px; /* Adjust the width as needed */
+    height: auto;
+    padding: 10px;
+    font-size: 16px; /* Adjust the font size as needed */
+    text-align: center;
+  }
