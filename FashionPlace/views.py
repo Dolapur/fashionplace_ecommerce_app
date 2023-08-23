@@ -208,12 +208,12 @@ def payment(request, pk):
         cart = Cart.objects.get(id=cart_id)
         token = request.POST.get('stripeToken')
 
-        cart_total = cart.get_cart_total
+        cart_total = cart.get_cart_total * 100
 
         try:
             stripe.api_key = settings.STRIPE_SECRET_KEY
             charge = stripe.Charge.create(
-                amount=int(cart_total * 100),
+                amount=int(cart_total),
                 currency='usd',
                 source=token,
             )

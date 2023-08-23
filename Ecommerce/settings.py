@@ -41,12 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'FashionPlace',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'api',
-    'django_filters',
-    'drf_yasg',
-    'account'
 ]
 
 MIDDLEWARE = [
@@ -87,17 +81,9 @@ WSGI_APPLICATION = 'Ecommerce.wsgi.application'
 
 password = config('password')
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'FashionPlace',
-        'USER': 'postgres',
-        'PASSWORD': password,
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

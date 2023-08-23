@@ -54,7 +54,7 @@
                         
                         <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                                 data-key="{{ settings.STRIPE_PUBLISHABLE_KEY }}"
-                                data-amount="{{ cart.get_cart_total|floatformat:'2' }}00"
+                                data-amount="{{ cart.get_cart_total}}00"
                                     data-name="Fashion Place"
                                     data-description="Shop with ease"
                                     data-currency="usd"
