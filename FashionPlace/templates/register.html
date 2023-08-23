@@ -13,12 +13,12 @@
     <form action = '#' method = 'POST'>
       {% csrf_token %}
       <div id = 'form-control'>
-        <label>Fullname:</label>
-        {{register_form.name}}
+        <label>Firstname:</label>
+        {{register_form.first_name}}
       </div>
       <div id = 'form-control'>
-          <label>Username:</label>
-          {{register_form.username}}
+          <label>Lastname:</label>
+          {{register_form.last_name}}
         </div>
         <div id = 'form-control'>
           <label>Email:</label>
@@ -46,5 +46,13 @@
     </form>
   </div>
   
+  <script>
+    let inputs = document.getElementsByTagName('input');
+    for (let i = 0; i < inputs.length; i++) {
+      if (inputs[i].type !== 'search') {
+        inputs[i].classList.add('form-control');
+      }
+    }
+  </script>
   
   {% endblock %}

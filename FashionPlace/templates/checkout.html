@@ -49,7 +49,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <form action="{% url 'payment' cart.cart_id %}" method="post">
+                    <form action="{% url 'payment' cart.id %}" method="post">
                         {% csrf_token %}
                         
                         <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
@@ -62,7 +62,7 @@
                                     data-locale="auto">
                         </script>
                       </form>
-                    
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,8 +71,4 @@
 </div>
 
 
-
-
-
-
-{% endblock %} 
+{% endblock %}

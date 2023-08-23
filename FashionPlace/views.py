@@ -128,8 +128,10 @@ def register_page(request):
             request.session['nonuser'] = session_id
             request.session.save()
 
-            name = register_form.cleaned_data.get('name')
-            customer = Customer.objects.create(user=user, name=name)
+            first_name = register_form.cleaned_data.get('first_name')
+            last_name = register_form.cleaned_data.get('last_name') 
+            email = register_form.cleaned_data.get('email')
+            customer = Customer.objects.create(user=user, first_name=first_name, last_name=last_name, email=email)
             customer.save()
 
             cart = Cart.objects.filter(session_id=session_id, completed=False).first()
@@ -151,20 +153,28 @@ def register_page(request):
 
 def login_page(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password1')
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, email=email, password=password)
         if user is not None:
             login(request, user)
 
             if 'nonuser' in request.session:
                 nonuser_cart = Cart.objects.filter(session_id=request.session['nonuser'], completed=False).first()
-                user_cart = Cart.objects.filter(customer=request.user.customer, completed=False).first()
+
+                # Check if the user has a customer instance
+                if hasattr(request.user, 'customer'):
+                    user_cart = Cart.objects.filter(customer=request.user.customer, completed=False).first()
+                else:
+                    # Create a customer instance for the user if it doesn't exist
+                    customer = Customer.objects.create(user=request.user)
+                    user_cart = Cart.objects.create(customer=customer, session_id=request.session['nonuser'])
+
 
                 if nonuser_cart and user_cart:
-                    nonuser_cart_items = nonuser_cart.cartitem_set.all()
+                    nonuser_cart_items = nonuser_cart.items.all()
                     for nonuser_cart_item in nonuser_cart_items:
-                        existing_cart_item = user_cart.cartitem_set.filter(product=nonuser_cart_item.product).first()
+                        existing_cart_item = user_cart.items.filter(product=nonuser_cart_item.product).first()
                         if existing_cart_item:
                             existing_cart_item.quantity += nonuser_cart_item.quantity
                             existing_cart_item.save()
@@ -221,6 +231,7 @@ def payment(request, pk):
     return render(request, 'checkout.html', context)
 
     return render(request, 'checkout.html', context)
+
 
 
 def logout_page(request):

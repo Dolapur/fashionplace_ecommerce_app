@@ -14,6 +14,7 @@ from pathlib import Path
 from decouple import config
 
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,7 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'FashionPlace'
+    'FashionPlace',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'api',
+    'django_filters',
+    'drf_yasg',
+    'account'
 ]
 
 MIDDLEWARE = [
@@ -78,10 +85,19 @@ WSGI_APPLICATION = 'Ecommerce.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+password = config('password')
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'FashionPlace',
+        'USER': 'postgres',
+        'PASSWORD': password,
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 
@@ -131,6 +147,4 @@ MEDIA_ROOT = BASE_DIR/'static/image'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY')
-STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+AUTH_USER_MODEL = 'FashionPlace.User'

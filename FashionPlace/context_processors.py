@@ -27,19 +27,5 @@ def cart_render(request):
     }
 
 
-#  cart = {}
-#     cartitems = {}
-#     try:
-#         cart = Cart.objects.get(customer=request.user.customer, completed=False)
-#         cartitems = cart.cartitem_set.all()
-#     except:
-#         if request.user.is_anonymous:
-#             try:
-#                 request.session['nonuser'] = str(uuid.uuid4())
-#                 cart = Cart.objects.get(session_id=request.session['nonuser'], completed=False)
-#                 cartitems = cart.cartitem_set.all()
-#             except Cart.DoesNotExist:
-#                 request.session['nonuser'] = str(uuid.uuid4())
-#                 cart = Cart.objects.create(session_id=request.session['nonuser'], completed=False)
-#                 cartitems = cart.cartitem_set.all()
-#     return {'cart': cart, 'cartitems': cartitems}
+
+

@@ -1,29 +1,14 @@
 from django import forms
+from django.forms import ModelForm
 from .models import *
+from django.contrib import admin
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+# from .models import Address
 
 
 class CreateUserForm(UserCreationForm):
-    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'class': 'form-control', 'placeholder': 'Enter Full Name'
-    }))
-
-    username = forms.CharField(max_length = 100, widget = forms.TextInput(attrs={
-        'class' : 'form-control', 'placeholder': 'Enter Username'
-    }))
-
-    email = forms.CharField(max_length = 100, widget = forms.EmailInput(attrs={
-        'class' : 'form-control', 'placeholder': 'Enter Email Address'
-    }))
-
-    password1 = forms.CharField(max_length = 100, widget = forms.PasswordInput(attrs={
-        'class' : 'form-control', 'placeholder': 'At least eight characters'
-    }))
-    password2 = forms.CharField(max_length = 100, widget = forms.PasswordInput(attrs={
-        'class' : 'form-control', 'placeholder': 'Confirm Password'
-    }))
     class Meta:
-        model = User
-        fields = ['name', 'username', 'email', 'password1', 'password2']
+        model = get_user_model()
+        fields = ['first_name', 'last_name', 'email', 'password1', 'password2']
 
